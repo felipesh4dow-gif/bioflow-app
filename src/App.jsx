@@ -194,14 +194,14 @@ const Field = ({ label, placeholder, value, onChange, multiline = false, type = 
       <textarea value={value} placeholder={placeholder} onChange={e => onChange(e.target.value)} style={{
         display: "block", width: "100%", marginTop: 6,
         border: `1.5px solid ${colors.cream}`, borderRadius: 12, padding: "14px 16px",
-        fontSize: 14, fontFamily: "sans-serif", background: "#fff",
+        fontSize: 14, fontFamily: "sans-serif", background: "#fff", color: colors.textDark, caretColor: colors.primaryDark,
         outline: "none", resize: "none", height: 80, boxSizing: "border-box",
       }} />
     ) : (
       <input type={type} value={value} placeholder={placeholder} onChange={e => onChange(e.target.value)} style={{
         display: "block", width: "100%", marginTop: 6,
         border: `1.5px solid ${colors.cream}`, borderRadius: 12, padding: "14px 16px",
-        fontSize: 15, fontFamily: "sans-serif", background: "#fff",
+        fontSize: 15, fontFamily: "sans-serif", background: "#fff", color: colors.textDark, caretColor: colors.primaryDark,
         outline: "none", boxSizing: "border-box",
       }} />
     )}
