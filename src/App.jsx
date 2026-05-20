@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const colors = {
   primary: "#5c7936",
@@ -124,6 +124,122 @@ const StatusBadge = ({ status }) => {
     }}>{s.label}</span>
   );
 };
+const Phone = ({ children }) => (
+  <div style={{
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    minHeight: "100vh",
+    padding: 20,
+    boxSizing: "border-box",
+    background: "linear-gradient(135deg, #e8ead8 0%, #d4d8c0 100%)",
+    fontFamily: "'Georgia', serif",
+  }}>
+    <div style={{
+      width: 390,
+      height: 780,
+      maxHeight: "calc(100vh - 40px)",
+      background: colors.bg,
+      borderRadius: 44,
+      boxShadow: "0 40px 100px #1a241044, 0 0 0 8px #fff, 0 0 0 10px #e0debc",
+      overflow: "hidden",
+      display: "flex",
+      flexDirection: "column",
+      position: "relative",
+    }}>
+      <div style={{ background: colors.primaryDark, height: 44, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px" }}>
+        <span style={{ color: "#fff", fontSize: 13, fontWeight: 700 }}>9:41</span>
+        <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+          <span style={{ color: "#fff", fontSize: 11 }}>●●●●</span>
+          <span style={{ color: "#fff", fontSize: 11 }}>WiFi</span>
+          <span style={{ color: "#fff", fontSize: 11 }}>🔋</span>
+        </div>
+      </div>
+      <div style={{ flex: 1, minHeight: 0, overflowY: "auto", display: "flex", flexDirection: "column" }}>
+        {children}
+      </div>
+    </div>
+  </div>
+);
+
+const Header = ({ title, subtitle, icon = "🌿", gradient = `linear-gradient(135deg, ${colors.primaryDark}, ${colors.primary})` }) => (
+  <div style={{ background: gradient, padding: "28px 24px 24px", borderRadius: "0 0 26px 26px" }}>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div>
+        <h2 style={{ color: "#fff", fontSize: 22, margin: 0, fontWeight: 900 }}>{title}</h2>
+        {subtitle && <p style={{ color: colors.cream, fontSize: 13, margin: "4px 0 0", fontFamily: "sans-serif", opacity: 0.85 }}>{subtitle}</p>}
+      </div>
+      <div style={{ background: "#ffffff22", borderRadius: 12, padding: "8px 10px", fontSize: 22 }}>{icon}</div>
+    </div>
+  </div>
+);
+
+const Card = ({ children, onClick, style = {} }) => (
+  <div onClick={onClick} style={{
+    background: "#fff",
+    borderRadius: 16,
+    padding: 16,
+    border: `1.5px solid ${colors.cream}`,
+    cursor: onClick ? "pointer" : "default",
+    ...style,
+  }}>
+    {children}
+  </div>
+);
+
+const Field = ({ label, placeholder, value, onChange, multiline = false, type = "text" }) => (
+  <div>
+    <label style={{ color: colors.primaryDark, fontSize: 12, fontWeight: 700, letterSpacing: 0.5, fontFamily: "sans-serif" }}>{label.toUpperCase()}</label>
+    {multiline ? (
+      <textarea value={value} placeholder={placeholder} onChange={e => onChange(e.target.value)} style={{
+        display: "block", width: "100%", marginTop: 6,
+        border: `1.5px solid ${colors.cream}`, borderRadius: 12, padding: "14px 16px",
+        fontSize: 14, fontFamily: "sans-serif", background: "#fff",
+        outline: "none", resize: "none", height: 80, boxSizing: "border-box",
+      }} />
+    ) : (
+      <input type={type} value={value} placeholder={placeholder} onChange={e => onChange(e.target.value)} style={{
+        display: "block", width: "100%", marginTop: 6,
+        border: `1.5px solid ${colors.cream}`, borderRadius: 12, padding: "14px 16px",
+        fontSize: 15, fontFamily: "sans-serif", background: "#fff",
+        outline: "none", boxSizing: "border-box",
+      }} />
+    )}
+  </div>
+);
+
+const PrimaryButton = ({ children, onClick, style = {} }) => (
+  <button onClick={onClick} style={{
+    background: `linear-gradient(135deg, ${colors.primary}, ${colors.primaryLight})`,
+    color: "#fff",
+    border: "none",
+    borderRadius: 14,
+    padding: "16px 18px",
+    fontSize: 15,
+    fontWeight: 700,
+    cursor: "pointer",
+    fontFamily: "sans-serif",
+    boxShadow: `0 8px 24px ${colors.primary}33`,
+    ...style,
+  }}>{children}</button>
+);
+
+const SecondaryButton = ({ children, onClick, style = {} }) => (
+  <button onClick={onClick} style={{
+    background: "#fff",
+    color: colors.textMid,
+    border: `1.5px solid ${colors.cream}`,
+    borderRadius: 14,
+    padding: "16px 18px",
+    fontSize: 14,
+    fontWeight: 700,
+    cursor: "pointer",
+    fontFamily: "sans-serif",
+    ...style,
+  }}>{children}</button>
+);
+
+
 
 export default function BioFlowApp() {
   const [screen, setScreen] = useState(screens.WELCOME);
@@ -132,11 +248,55 @@ export default function BioFlowApp() {
   const [usinaStep, setUsinaStep] = useState(0);
   const [form, setForm] = useState({ tipo: "", peso: "", data: "", obs: "" });
   const [usinaForm, setUsinaForm] = useState({ tipo: "", volume: "", data: "", qualidade: "", recorrencia: "" });
+  const [loginForm, setLoginForm] = useState({ email: "", senha: "" });
   const [activeTab, setActiveTab] = useState("home");
   const [rastrearId, setRastrearId] = useState("BF-2024-001");
   const [usinaRastrearId, setUsinaRastrearId] = useState("BF-US-001");
   const [selectedFornecedorId, setSelectedFornecedorId] = useState("BF-US-002");
   const [insumosUsina, setInsumosUsina] = useState(mockInsumosUsina);
+
+  useEffect(() => {
+    try {
+      const empresaSalva = localStorage.getItem("bioflow_empresa_form");
+      const usinaSalva = localStorage.getItem("bioflow_usina_form");
+      const loginSalvo = localStorage.getItem("bioflow_login_form");
+      const insumosSalvos = localStorage.getItem("bioflow_insumos_usina");
+
+      if (empresaSalva) setForm(JSON.parse(empresaSalva));
+      if (usinaSalva) setUsinaForm(JSON.parse(usinaSalva));
+      if (loginSalvo) setLoginForm(JSON.parse(loginSalvo));
+      if (insumosSalvos) setInsumosUsina(JSON.parse(insumosSalvos));
+    } catch (error) {
+      console.warn("Não foi possível carregar os dados salvos da BioFlow.", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("bioflow_empresa_form", JSON.stringify(form));
+  }, [form]);
+
+  useEffect(() => {
+    localStorage.setItem("bioflow_usina_form", JSON.stringify(usinaForm));
+  }, [usinaForm]);
+
+  useEffect(() => {
+    localStorage.setItem("bioflow_login_form", JSON.stringify(loginForm));
+  }, [loginForm]);
+
+  useEffect(() => {
+    localStorage.setItem("bioflow_insumos_usina", JSON.stringify(insumosUsina));
+  }, [insumosUsina]);
+
+  const limparDadosSalvos = () => {
+    localStorage.removeItem("bioflow_empresa_form");
+    localStorage.removeItem("bioflow_usina_form");
+    localStorage.removeItem("bioflow_login_form");
+    localStorage.removeItem("bioflow_insumos_usina");
+    setForm({ tipo: "", peso: "", data: "", obs: "" });
+    setUsinaForm({ tipo: "", volume: "", data: "", qualidade: "", recorrencia: "" });
+    setLoginForm({ email: "", senha: "" });
+    setInsumosUsina(mockInsumosUsina);
+  };
 
   const go = (s, tab) => {
     setScreen(s);
@@ -151,121 +311,6 @@ export default function BioFlowApp() {
     setUsinaRastrearId(id);
     go(screens.USINA_CONFIRMACAO);
   };
-
-  const Phone = ({ children }) => (
-    <div style={{
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      minHeight: "100vh",
-      padding: 20,
-      boxSizing: "border-box",
-      background: "linear-gradient(135deg, #e8ead8 0%, #d4d8c0 100%)",
-      fontFamily: "'Georgia', serif",
-    }}>
-      <div style={{
-        width: 390,
-        height: 780,
-        maxHeight: "calc(100vh - 40px)",
-        background: colors.bg,
-        borderRadius: 44,
-        boxShadow: "0 40px 100px #1a241044, 0 0 0 8px #fff, 0 0 0 10px #e0debc",
-        overflow: "hidden",
-        display: "flex",
-        flexDirection: "column",
-        position: "relative",
-      }}>
-        <div style={{ background: colors.primaryDark, height: 44, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px" }}>
-          <span style={{ color: "#fff", fontSize: 13, fontWeight: 700 }}>9:41</span>
-          <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-            <span style={{ color: "#fff", fontSize: 11 }}>●●●●</span>
-            <span style={{ color: "#fff", fontSize: 11 }}>WiFi</span>
-            <span style={{ color: "#fff", fontSize: 11 }}>🔋</span>
-          </div>
-        </div>
-        <div style={{ flex: 1, minHeight: 0, overflowY: "auto", display: "flex", flexDirection: "column" }}>
-          {children}
-        </div>
-      </div>
-    </div>
-  );
-
-  const Header = ({ title, subtitle, icon = "🌿", gradient = `linear-gradient(135deg, ${colors.primaryDark}, ${colors.primary})` }) => (
-    <div style={{ background: gradient, padding: "28px 24px 24px", borderRadius: "0 0 26px 26px" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div>
-          <h2 style={{ color: "#fff", fontSize: 22, margin: 0, fontWeight: 900 }}>{title}</h2>
-          {subtitle && <p style={{ color: colors.cream, fontSize: 13, margin: "4px 0 0", fontFamily: "sans-serif", opacity: 0.85 }}>{subtitle}</p>}
-        </div>
-        <div style={{ background: "#ffffff22", borderRadius: 12, padding: "8px 10px", fontSize: 22 }}>{icon}</div>
-      </div>
-    </div>
-  );
-
-  const Card = ({ children, onClick, style = {} }) => (
-    <div onClick={onClick} style={{
-      background: "#fff",
-      borderRadius: 16,
-      padding: 16,
-      border: `1.5px solid ${colors.cream}`,
-      cursor: onClick ? "pointer" : "default",
-      ...style,
-    }}>
-      {children}
-    </div>
-  );
-
-  const Field = ({ label, placeholder, value, onChange, multiline = false }) => (
-    <div>
-      <label style={{ color: colors.primaryDark, fontSize: 12, fontWeight: 700, letterSpacing: 0.5, fontFamily: "sans-serif" }}>{label.toUpperCase()}</label>
-      {multiline ? (
-        <textarea value={value} placeholder={placeholder} onChange={e => onChange(e.target.value)} style={{
-          display: "block", width: "100%", marginTop: 6,
-          border: `1.5px solid ${colors.cream}`, borderRadius: 12, padding: "14px 16px",
-          fontSize: 14, fontFamily: "sans-serif", background: "#fff",
-          outline: "none", resize: "none", height: 80, boxSizing: "border-box",
-        }} />
-      ) : (
-        <input value={value} placeholder={placeholder} onChange={e => onChange(e.target.value)} style={{
-          display: "block", width: "100%", marginTop: 6,
-          border: `1.5px solid ${colors.cream}`, borderRadius: 12, padding: "14px 16px",
-          fontSize: 15, fontFamily: "sans-serif", background: "#fff",
-          outline: "none", boxSizing: "border-box",
-        }} />
-      )}
-    </div>
-  );
-
-  const PrimaryButton = ({ children, onClick, style = {} }) => (
-    <button onClick={onClick} style={{
-      background: `linear-gradient(135deg, ${colors.primary}, ${colors.primaryLight})`,
-      color: "#fff",
-      border: "none",
-      borderRadius: 14,
-      padding: "16px 18px",
-      fontSize: 15,
-      fontWeight: 700,
-      cursor: "pointer",
-      fontFamily: "sans-serif",
-      boxShadow: `0 8px 24px ${colors.primary}33`,
-      ...style,
-    }}>{children}</button>
-  );
-
-  const SecondaryButton = ({ children, onClick, style = {} }) => (
-    <button onClick={onClick} style={{
-      background: "#fff",
-      color: colors.textMid,
-      border: `1.5px solid ${colors.cream}`,
-      borderRadius: 14,
-      padding: "16px 18px",
-      fontSize: 14,
-      fontWeight: 700,
-      cursor: "pointer",
-      fontFamily: "sans-serif",
-      ...style,
-    }}>{children}</button>
-  );
 
   const NavBar = () => {
     const isUsina = userType === "usina";
@@ -341,8 +386,8 @@ export default function BioFlowApp() {
           <p style={{ color: colors.textLight, fontSize: 14, margin: 0, fontFamily: "sans-serif" }}>{userType === "usina" ? "Painel da Usina de Biogás" : "Painel da Empresa Geradora"}</p>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <Field label="E-mail" placeholder={userType === "usina" ? "operacao@usinabio.com.br" : "contato@empresa.com.br"} value="" onChange={() => {}} />
-          <Field label="Senha" placeholder="••••••••" value="" onChange={() => {}} />
+          <Field label="E-mail" placeholder={userType === "usina" ? "operacao@usinabio.com.br" : "contato@empresa.com.br"} value={loginForm.email} onChange={v => setLoginForm(prev => ({ ...prev, email: v }))} />
+          <Field label="Senha" placeholder="••••••••" type="password" value={loginForm.senha} onChange={v => setLoginForm(prev => ({ ...prev, senha: v }))} />
           <PrimaryButton onClick={() => go(userType === "usina" ? screens.USINA_HOME : screens.HOME, "home")} style={{ marginTop: 8 }}>Entrar →</PrimaryButton>
         </div>
         <div style={{ textAlign: "center", marginTop: 24 }}>
@@ -500,7 +545,7 @@ export default function BioFlowApp() {
     <Phone>
       <div style={{ flex: 1, overflowY: "auto" }}>
         <div style={{ background: `linear-gradient(135deg, ${colors.primaryDark}, ${colors.primary})`, padding: "32px 24px 40px", borderRadius: "0 0 28px 28px", textAlign: "center" }}><div style={{ fontSize: 56, marginBottom: 8 }}>🏪</div><h2 style={{ color: "#fff", margin: "0 0 4px", fontSize: 20, fontWeight: 900 }}>Supermercado Pão de Mel</h2><p style={{ color: colors.cream, margin: 0, fontSize: 13, fontFamily: "sans-serif", opacity: 0.8 }}>CNPJ: 12.345.678/0001-99</p></div>
-        <div style={{ padding: 20, display: "flex", flexDirection: "column", gap: 10 }}>{[{ icon: "📍", label: "Endereço de coleta", val: "Av. Paulista, 1234 — São Paulo" }, { icon: "📞", label: "Contato", val: "(11) 91234-5678" }, { icon: "📧", label: "E-mail", val: "contato@paodemel.com.br" }, { icon: "🔔", label: "Notificações", val: "Ativadas" }, { icon: "📄", label: "Relatório ESG", val: "Baixar PDF" }].map(m => <Card key={m.label} style={{ display: "flex", alignItems: "center", gap: 14 }}><span style={{ fontSize: 22 }}>{m.icon}</span><div style={{ flex: 1 }}><div style={{ color: colors.textLight, fontSize: 11, fontFamily: "sans-serif" }}>{m.label}</div><div style={{ color: colors.primaryDark, fontWeight: 700, fontSize: 13, fontFamily: "sans-serif" }}>{m.val}</div></div><span style={{ color: colors.textLight }}>›</span></Card>)}<button onClick={() => go(screens.WELCOME)} style={{ background: "#fff2f0", border: "1.5px solid #ffcccc", borderRadius: 14, padding: 16, color: colors.red, fontWeight: 700, fontSize: 14, cursor: "pointer", marginTop: 8, fontFamily: "sans-serif" }}>Sair da conta</button></div>
+        <div style={{ padding: 20, display: "flex", flexDirection: "column", gap: 10 }}>{[{ icon: "📍", label: "Endereço de coleta", val: "Av. Paulista, 1234 — São Paulo" }, { icon: "📞", label: "Contato", val: "(11) 91234-5678" }, { icon: "📧", label: "E-mail", val: "contato@paodemel.com.br" }, { icon: "🔔", label: "Notificações", val: "Ativadas" }, { icon: "📄", label: "Relatório ESG", val: "Baixar PDF" }].map(m => <Card key={m.label} style={{ display: "flex", alignItems: "center", gap: 14 }}><span style={{ fontSize: 22 }}>{m.icon}</span><div style={{ flex: 1 }}><div style={{ color: colors.textLight, fontSize: 11, fontFamily: "sans-serif" }}>{m.label}</div><div style={{ color: colors.primaryDark, fontWeight: 700, fontSize: 13, fontFamily: "sans-serif" }}>{m.val}</div></div><span style={{ color: colors.textLight }}>›</span></Card>)}<button onClick={() => { limparDadosSalvos(); go(screens.WELCOME); }} style={{ background: "#fff2f0", border: "1.5px solid #ffcccc", borderRadius: 14, padding: 16, color: colors.red, fontWeight: 700, fontSize: 14, cursor: "pointer", marginTop: 8, fontFamily: "sans-serif" }}>Sair da conta</button></div>
       </div>
       <NavBar />
     </Phone>
@@ -611,7 +656,7 @@ export default function BioFlowApp() {
     <Phone>
       <div style={{ flex: 1, overflowY: "auto" }}>
         <div style={{ background: `linear-gradient(135deg, #1a3a2a, #2d6040)`, padding: "32px 24px 40px", borderRadius: "0 0 28px 28px", textAlign: "center" }}><div style={{ fontSize: 56, marginBottom: 8 }}>⚡</div><h2 style={{ color: "#fff", margin: "0 0 4px", fontSize: 20, fontWeight: 900 }}>Usina BioPower SP</h2><p style={{ color: colors.cream, margin: 0, fontSize: 13, fontFamily: "sans-serif", opacity: 0.8 }}>Capacidade operacional: 12 t/dia</p><div style={{ background: "#ffffff22", borderRadius: 10, padding: "6px 14px", display: "inline-block", marginTop: 10 }}><span style={{ color: colors.cream, fontSize: 12, fontFamily: "sans-serif" }}>✅ Parceira BioFlow · Fornecimento rastreável</span></div></div>
-        <div style={{ padding: 20, display: "flex", flexDirection: "column", gap: 10 }}>{[{ icon: "📍", label: "Endereço", val: "Campinas — SP" }, { icon: "📦", label: "Tipos aceitos", val: "Alimentares, cascas e efluentes" }, { icon: "🧪", label: "Qualidade mínima", val: "Acima de 85%" }, { icon: "📊", label: "Capacidade atual", val: "87% utilizada" }, { icon: "📄", label: "Relatório operacional", val: "Baixar PDF" }].map(m => <Card key={m.label} style={{ display: "flex", alignItems: "center", gap: 14 }}><span style={{ fontSize: 22 }}>{m.icon}</span><div style={{ flex: 1 }}><div style={{ color: colors.textLight, fontSize: 11, fontFamily: "sans-serif" }}>{m.label}</div><div style={{ color: colors.primaryDark, fontWeight: 700, fontSize: 13, fontFamily: "sans-serif" }}>{m.val}</div></div><span style={{ color: colors.textLight }}>›</span></Card>)}<button onClick={() => go(screens.WELCOME)} style={{ background: "#fff2f0", border: "1.5px solid #ffcccc", borderRadius: 14, padding: 16, color: colors.red, fontWeight: 700, fontSize: 14, cursor: "pointer", marginTop: 8, fontFamily: "sans-serif" }}>Sair da conta</button></div>
+        <div style={{ padding: 20, display: "flex", flexDirection: "column", gap: 10 }}>{[{ icon: "📍", label: "Endereço", val: "Campinas — SP" }, { icon: "📦", label: "Tipos aceitos", val: "Alimentares, cascas e efluentes" }, { icon: "🧪", label: "Qualidade mínima", val: "Acima de 85%" }, { icon: "📊", label: "Capacidade atual", val: "87% utilizada" }, { icon: "📄", label: "Relatório operacional", val: "Baixar PDF" }].map(m => <Card key={m.label} style={{ display: "flex", alignItems: "center", gap: 14 }}><span style={{ fontSize: 22 }}>{m.icon}</span><div style={{ flex: 1 }}><div style={{ color: colors.textLight, fontSize: 11, fontFamily: "sans-serif" }}>{m.label}</div><div style={{ color: colors.primaryDark, fontWeight: 700, fontSize: 13, fontFamily: "sans-serif" }}>{m.val}</div></div><span style={{ color: colors.textLight }}>›</span></Card>)}<button onClick={() => { limparDadosSalvos(); go(screens.WELCOME); }} style={{ background: "#fff2f0", border: "1.5px solid #ffcccc", borderRadius: 14, padding: 16, color: colors.red, fontWeight: 700, fontSize: 14, cursor: "pointer", marginTop: 8, fontFamily: "sans-serif" }}>Sair da conta</button></div>
       </div>
       <NavBar />
     </Phone>
